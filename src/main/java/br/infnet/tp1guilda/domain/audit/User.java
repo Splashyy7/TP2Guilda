@@ -29,7 +29,7 @@ public class User {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "organizacao_id", nullable = false)
+    @JoinColumn(name = "organizacao_id", nullable = false, foreignKey = @ForeignKey(name = "fk_usuarios_org"))
     private Organization organizacao;
 
     @NotBlank

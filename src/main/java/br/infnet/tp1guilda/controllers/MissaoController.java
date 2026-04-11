@@ -8,7 +8,9 @@ import br.infnet.tp1guilda.dto.missao.FilterRequestMissao;
 import br.infnet.tp1guilda.dto.missao.ResponseMissao;
 import br.infnet.tp1guilda.dto.missao.ResponseMissaoDetalhada;
 import br.infnet.tp1guilda.mapper.MissaoMapper;
+import br.infnet.tp1guilda.domain.operacoes.PainelTaticoMissaoMV;
 import br.infnet.tp1guilda.service.MissaoService;
+import br.infnet.tp1guilda.service.PainelTaticoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +28,7 @@ public class MissaoController {
 
     private final MissaoService missaoService;
     private final MissaoMapper missaoMapper;
+    private final PainelTaticoService painelTaticoService;
 
     @GetMapping
     public ResponseEntity<List<ResponseMissao>> listar(
@@ -56,6 +59,11 @@ public class MissaoController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(response);
+    }
+
+    @GetMapping("/top15dias")
+    public ResponseEntity<List<PainelTaticoMissaoMV>> top15Dias() {
+        return ResponseEntity.ok(painelTaticoService.buscarMissoesRelevantes());
     }
 
     @GetMapping("/{id}")

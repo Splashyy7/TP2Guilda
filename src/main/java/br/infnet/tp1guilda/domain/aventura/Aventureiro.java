@@ -1,33 +1,63 @@
 package br.infnet.tp1guilda.domain.aventura;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import br.infnet.tp1guilda.domain.audit.Organization;
+import br.infnet.tp1guilda.domain.audit.User;
 import br.infnet.tp1guilda.enums.Classe;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
-@ToString
+@NoArgsConstructor
+@Entity
+@Table(name = "aventureiros", schema = "aventura")
 public class Aventureiro {
-    @Setter
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Tem que haver um nome")
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "organizacao_id", nullable = false, foreignKey = @ForeignKey(name = "fk_aventureiros_org"))
+    private Organization organizacao;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "cadastrado_por_id", nullable = false, foreignKey = @ForeignKey(name = "fk_aventureiros_usuario"))
+    private User cadastradoPor;
+
+    @Column(name = "nome", nullable = false, length = 120)
     private String nome;
-    @NotNull(message = "Tem que haver uma classe")
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "classe", nullable = false, length = 30)
     private Classe classe;
-    @Min(value = 1, message = "O nível deve ser maior ou igual a 1")
+
+    @Column(name = "nivel", nullable = false)
     private int nivel;
-    @NotNull
+
+    @Column(name = "ativo", nullable = false)
     private Boolean ativo;
-    @Valid
+
+    @Embedded
     private Companheiro companheiro;
 
+    @OneToMany(mappedBy = "aventureiro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParticipacaoMissao> participacoes = new ArrayList<>();
 
-    public Aventureiro(String nome, Classe classe, int nivel) {
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
+
+    public Aventureiro(Organization organizacao, User cadastradoPor, String nome, Classe classe, int nivel) {
+        this.organizacao = organizacao;
+        this.cadastradoPor = cadastradoPor;
         this.nome = nome;
         this.classe = classe;
         this.nivel = nivel;
@@ -62,4 +92,15 @@ public class Aventureiro {
         this.companheiro = null;
     }
 
+    @PrePersist
+    public void prePersist() {
+        OffsetDateTime agora = OffsetDateTime.now();
+        this.createdAt = agora;
+        this.updatedAt = agora;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = OffsetDateTime.now();
+    }
 }

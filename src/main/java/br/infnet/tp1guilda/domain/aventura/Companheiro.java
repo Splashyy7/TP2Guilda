@@ -1,21 +1,28 @@
 package br.infnet.tp1guilda.domain.aventura;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.ToString;
-import org.hibernate.validator.constraints.Range;
 import br.infnet.tp1guilda.enums.Especie;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @ToString
+@NoArgsConstructor
+@Embeddable
 public class Companheiro {
-    @NotBlank(message = "O nome não pode ser vazio")
+
+    @Column(name = "companheiro_nome", nullable = false, length = 120)
     private String nome;
-    @NotNull(message = "A espécie é obrigatória")
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "companheiro_especie", nullable = false, length = 30)
     private Especie especie;
-    @NotNull
-    @Range(min = 0, max = 100, message = "A lealdade deve ser um inteiro entre 0 e 100")
+
+    @Column(name = "companheiro_lealdade", nullable = false)
     private Integer lealdade;
 
     public Companheiro(String nome, Especie especie, Integer lealdade) {

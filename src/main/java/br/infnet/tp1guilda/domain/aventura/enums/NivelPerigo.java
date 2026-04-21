@@ -4,5 +4,5 @@ public enum NivelPerigo {
     BAIXO,
     MEDIO,
     ALTO,
-    CRITICO
+    EXTREMO
 }

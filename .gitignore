@@ -1,0 +1,134 @@
+# ============================================================
+# Build / Maven
+# ============================================================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# ============================================================
+# Gradle (caso seja adicionado no futuro)
+# ============================================================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ============================================================
+# IDE - IntelliJ IDEA
+# ============================================================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# ============================================================
+# IDE - Eclipse
+# ============================================================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+
+# ============================================================
+# IDE - VSCode
+# ============================================================
+.vscode/
+*.code-workspace
+
+# ============================================================
+# IDE - NetBeans
+# ============================================================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ============================================================
+# Java / JVM
+# ============================================================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+*.log
+
+# ============================================================
+# Spring Boot
+# ============================================================
+HELP.md
+application-*.properties
+application-*.yml
+application-*.yaml
+!application-example.properties
+!application-example.yml
+
+# ============================================================
+# Sistema operacional
+# ============================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ============================================================
+# Logs e arquivos temporários
+# ============================================================
+logs/
+*.log.*
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# ============================================================
+# Variáveis de ambiente / segredos
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ============================================================
+# Docker
+# ============================================================
+docker-compose.override.yml
+
+# ============================================================
+# Outros
+# ============================================================
+*.orig
+.history/

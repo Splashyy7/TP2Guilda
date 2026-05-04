@@ -2,8 +2,6 @@
 
 API REST de gestão de uma **Guilda de Aventureiros** — controle de aventureiros, missões, companheiros, relatórios analíticos e busca avançada de produtos da loja da guilda via Elasticsearch.
 
-Projeto desenvolvido como TP (Trabalho de Projeto) do curso da **Infnet**, evoluído ao longo de várias entregas (TP1 → TP2) cobrindo modelagem JPA multi-schema, paginação/filtros, materialized views, cache com Caffeine e busca textual com Elasticsearch.
-
 ---
 
 ## Sumário
@@ -207,26 +205,36 @@ src/main/java/br/infnet/tp1guilda
 - **PostgreSQL** rodando em `localhost:5432`
 - **Elasticsearch 8.x** rodando em `localhost:9200`
 
-### 1. Subir as dependências externas
+### 1. Subir o PostgreSQL (imagem do TP)
 
-> Sugestão de `docker-compose.yml` (não incluído no repo — exemplo mínimo):
+Este projeto usa a imagem PostgreSQL pré-configurada disponibilizada para o TP2:
 
-```yaml
-services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: jpguild
-    ports: ["5432:5432"]
-  elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports: ["9200:9200"]
+```powershell
+docker pull leogloriainfnet/postgres-tp2-spring:2.0-win
+
+docker run -d --name api-guilda-postgres `
+  -e POSTGRES_PASSWORD=jpguild `
+  -p 5432:5432 `
+  leogloriainfnet/postgres-tp2-spring:2.0-win
 ```
 
-### 2. Preparar o banco
+> A senha `jpguild` casa com o `spring.datasource.password` em `application.properties`. Se você usar outra senha aqui, ajuste o `application.properties` (ou exporte via env var) também.
+
+### 2. Subir o Elasticsearch
+
+```powershell
+docker pull leogloriainfnet/elastic-tp2-spring:1.0-alternativo
+
+docker run -d --name api-guilda-elastic `
+  -e discovery.type=single-node `
+  -e xpack.security.enabled=false `
+  -p 9200:9200 `
+  docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+```
+
+O índice `guilda_loja` é declarado com `createIndex = false` em `ProdutoLoja.java` — ele deve ser criado e populado externamente conforme o mapeamento (campos: `nome` text+keyword, `categoria` keyword, `descricao` text, `preco` float, `raridade` keyword).
+
+### 3. Preparar o banco
 
 Os schemas `aventura`, `audit` e `operacoes` precisam existir antes do primeiro start (o Hibernate cria as tabelas com `ddl-auto=update`, mas **não cria schemas**):
 
@@ -238,11 +246,39 @@ CREATE SCHEMA IF NOT EXISTS operacoes;
 
 A view materializada `operacoes.vw_painel_tatico_missao` deve ser criada manualmente — o DDL **não está versionado** neste repositório.
 
-### 3. (Opcional) Preparar o índice Elasticsearch
+### 4. Popular o banco com dados de exemplo (seed.sql)
 
-O índice `guilda_loja` é declarado com `createIndex = false` — crie e popule manualmente conforme o mapeamento exposto em `ProdutoLoja.java` (campos: `nome` text+keyword, `categoria` keyword, `descricao` text, `preco` float, `raridade` keyword).
+Depois de rodar a aplicação **pelo menos uma vez** (para o `ddl-auto=update` criar as tabelas e sequences), execute o script `src/main/resources/seed.sql` no console SQL do PostgreSQL (psql, DataGrip, IntelliJ Database Tools, etc).
 
-### 4. Rodar a aplicação
+O seed insere:
+
+- 3 organizações, 7 permissions, 6 roles + vínculos
+- 6 usuários com roles atribuídas
+- 2 API keys
+- 8 missões cobrindo todos os `StatusMissao` e `NivelPerigo`
+- 14 aventureiros (todas as `Classe` e `Especie` representadas, com companheiros)
+- 21 participações em missão (incluindo MVPs para o ranking)
+- 7 entradas de auditoria
+
+Características do script:
+
+- IDs começam em **1001** para conviver com qualquer dado pré-existente.
+- `audit.permissions` usa `ON CONFLICT (code) DO NOTHING` (idempotente — codes são unique global).
+- `audit.role_permissions` resolve `permission_id` por `code`, então o vínculo sai certo mesmo que as permissions já existissem com IDs diferentes.
+- Ao final, ajusta as sequences via `setval(..., GREATEST(MAX(id), 1100))` para o próximo INSERT da aplicação não colidir.
+- Tudo dentro de um único `BEGIN/COMMIT`.
+
+Se quiser começar do zero antes de rodar o seed:
+
+```sql
+TRUNCATE
+  aventura.participacoes_missao, aventura.aventureiros, aventura.missoes,
+  audit.audit_entries, audit.user_roles, audit.role_permissions,
+  audit.api_keys, audit.usuarios, audit.roles, audit.permissions, audit.organizacoes
+RESTART IDENTITY CASCADE;
+```
+
+### 5. Rodar a aplicação
 
 ```powershell
 # Windows (PowerShell)

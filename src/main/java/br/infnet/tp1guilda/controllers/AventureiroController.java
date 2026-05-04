@@ -10,6 +10,8 @@ import br.infnet.tp1guilda.dto.*;
 import br.infnet.tp1guilda.mapper.*;
 import br.infnet.tp1guilda.domain.aventura.Aventureiro;
 import br.infnet.tp1guilda.enums.Classe;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -26,6 +28,7 @@ import java.util.List;
 @RequestMapping("/aventureiros")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Aventureiros", description = "Cadastro e ciclo de vida dos aventureiros (recrutar, encerrar, companheiro)")
 public class AventureiroController {
 
     private final AventureiroMapper mapperAventureiro;
@@ -34,6 +37,7 @@ public class AventureiroController {
     //post registrar aventureiro
 
     @PostMapping
+    @Operation(summary = "Registrar aventureiro", description = "Cria um novo aventureiro vinculado a uma organização e usuário responsável")
     public ResponseEntity<ResponseAventureiro> registrarAventureiro(@RequestBody @Valid CriarAventureiro dto) {
         Aventureiro salvo = serviceAventureiro.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -43,6 +47,7 @@ public class AventureiroController {
     //get listar aventureiros
 
     @GetMapping
+    @Operation(summary = "Listar aventureiros", description = "Lista aventureiros com filtros opcionais (classe, ativo, nivelMinimo) e paginação")
     public ResponseEntity<List<ResponseAventureiro>> listar(
             @RequestParam(required = false) Classe classe,
             @RequestParam(required = false) Boolean ativo,
@@ -75,6 +80,7 @@ public class AventureiroController {
     //get buscar por nome
 
     @GetMapping("/busca")
+    @Operation(summary = "Buscar aventureiros por nome", description = "Busca LIKE case-insensitive no campo nome")
     public ResponseEntity<List<ResponseAventureiro>> buscarPorNome(
             @RequestParam String nome,
             @RequestParam(defaultValue = "0") int page,
@@ -104,6 +110,7 @@ public class AventureiroController {
     //get visualização completa
 
     @GetMapping("/{id}/completo")
+    @Operation(summary = "Buscar aventureiro (visão completa)", description = "Inclui totais e dados da última missão participada")
     public ResponseEntity<ResponseAventureiro> buscarCompleto(@PathVariable Long id) {
         return ResponseEntity.ok(serviceAventureiro.buscarCompleto(id));
     }
@@ -111,6 +118,7 @@ public class AventureiroController {
     //get buscar por id
 
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar aventureiro por id")
     public ResponseEntity<ResponseAventureiro> buscarPorId(@PathVariable Long id) {
         Aventureiro aventureiro = serviceAventureiro.buscarPorId(id);
         return ResponseEntity.ok(mapperAventureiro.toResponse(aventureiro));
@@ -119,6 +127,7 @@ public class AventureiroController {
     //atualizar aventureiro
 
     @PatchMapping("/{id}")
+    @Operation(summary = "Atualizar aventureiro (parcial)", description = "Atualiza nome, classe e/ou nível — todos opcionais")
     public ResponseEntity<ResponseAventureiro> atualizar(
             @PathVariable Long id,
             @Valid @RequestBody AtualizarAventureiro update
@@ -130,6 +139,7 @@ public class AventureiroController {
     //encerrar vinculo de aventureiro
 
     @PatchMapping("/{id}/encerrar-vinculo")
+    @Operation(summary = "Encerrar vínculo do aventureiro", description = "Marca como inativo (ativo=false)")
     public ResponseEntity<ResponseAventureiro> encerrarVinculo(@PathVariable Long id) {
         Aventureiro aventureiro = serviceAventureiro.encerrarVinculo(id);
         return ResponseEntity.ok(mapperAventureiro.toResponse(aventureiro));
@@ -138,6 +148,7 @@ public class AventureiroController {
     //recrutar aventureiro novamente
 
     @PatchMapping("/{id}/recrutar")
+    @Operation(summary = "Recrutar aventureiro", description = "Reativa o vínculo (ativo=true)")
     public ResponseEntity<ResponseAventureiro> recrutarNovamente(@PathVariable Long id) {
         Aventureiro aventureiro = serviceAventureiro.recrutarNovamente(id);
         return ResponseEntity.ok(mapperAventureiro.toResponse(aventureiro));
@@ -146,6 +157,7 @@ public class AventureiroController {
     //definir companheiro
 
     @PutMapping("/{id}/companheiro")
+    @Operation(summary = "Definir companheiro", description = "Substitui o companheiro atual (se existir)")
     public ResponseEntity<ResponseAventureiro> definirCompanheiro(
             @PathVariable Long id,
             @Valid @RequestBody DefinirCompanheiro dto
@@ -157,6 +169,7 @@ public class AventureiroController {
     //remover companheiro
 
     @PatchMapping("/{id}/remover-companheiro")
+    @Operation(summary = "Remover companheiro do aventureiro")
     public ResponseEntity<ResponseAventureiro> removerCompanheiro(@PathVariable Long id) {
         Aventureiro aventureiro = serviceAventureiro.removerCompanheiro(id);
         return ResponseEntity.ok(mapperAventureiro.toResponse(aventureiro));

@@ -11,6 +11,7 @@ API REST de gestão de uma **Guilda de Aventureiros** — controle de aventureir
 - [Arquitetura & Estrutura do Projeto](#arquitetura--estrutura-do-projeto)
 - [Modelo de Dados](#modelo-de-dados)
 - [Endpoints](#endpoints)
+- [Documentação OpenAPI / Swagger](#documentação-openapi--swagger)
 - [Coleção Postman](#coleção-postman)
 - [Como Rodar](#como-rodar)
 - [Configuração](#configuração)
@@ -50,6 +51,7 @@ A guilda gerencia três subdomínios:
 | Banco de Dados    | PostgreSQL (multi-schema: `aventura`, `audit`, `operacoes`)           |
 | Busca/Indexação   | Spring Data Elasticsearch + cliente oficial `elasticsearch-java`      |
 | Cache             | Spring Cache + Caffeine                                               |
+| Documentação API  | Springdoc OpenAPI + Swagger UI                                        |
 | Build             | Maven (Maven Wrapper incluso)                                         |
 | Utilitários       | Lombok                                                                |
 | Testes            | Spring Boot Starter Test (JUnit 5)                                    |
@@ -197,6 +199,31 @@ src/main/java/br/infnet/tp1guilda
 
 ---
 
+## Documentação OpenAPI / Swagger
+
+A API possui documentação interativa gerada com **Springdoc OpenAPI** e disponibilizada via **Swagger UI**.
+
+Com a aplicação em execução, acesse:
+
+| Recurso | URL |
+|---|---|
+| Swagger UI | `http://localhost:8080/swagger-ui.html` |
+| OpenAPI JSON | `http://localhost:8080/v3/api-docs` |
+
+A documentação inclui os grupos de endpoints por domínio funcional:
+
+- **Aventureiros** — cadastro, atualização, vínculo, recrutamento e companheiro.
+- **Missões** — listagem, filtros, detalhe e painel tático cacheado.
+- **Relatórios** — ranking de aventureiros e relatório agregado de missões.
+- **Produtos (Elasticsearch)** — buscas textuais, fuzzy, filtros, faixas de preço e agregações.
+
+As configurações principais ficam em:
+
+- `ConfigOpenApi.java` — metadados da API, contato, licença e servidor local.
+- `application.properties` — paths do OpenAPI/Swagger UI e ordenação da interface.
+
+---
+
 ## Coleção Postman
 
 Há uma coleção pronta para importar em `postman/`:
@@ -258,11 +285,11 @@ O índice `guilda_loja` é declarado com `createIndex = false` em `ProdutoLoja.j
 Existe um `docker-compose.yml` pronto em `src/main/docker/` que sobe Postgres + Elasticsearch com volumes persistentes e healthchecks:
 
 ```powershell
-docker compose -f src/docker/docker-compose.yml up -d              # sobe tudo
-docker compose -f src/docker/docker-compose.yml ps                 # status / health
-docker compose -f src/docker/docker-compose.yml logs -f postgres   # logs de um servico
-docker compose -f src/docker/docker-compose.yml down               # para tudo (mantem volumes)
-docker compose -f src/docker/docker-compose.yml down -v            # para e APAGA os volumes
+docker compose -f src/main/docker/docker-compose.yml up -d              # sobe tudo
+docker compose -f src/main/docker/docker-compose.yml ps                 # status / health
+docker compose -f src/main/docker/docker-compose.yml logs -f postgres   # logs de um servico
+docker compose -f src/main/docker/docker-compose.yml down               # para tudo (mantem volumes)
+docker compose -f src/main/docker/docker-compose.yml down -v            # para e APAGA os volumes
 ```
 
 > **Atenção sobre os volumes:** na primeira subida, o Docker copia os dados da imagem (já populados pelo TP) para dentro do volume nomeado, então o conteúdo do Elastic e o seed do Postgres são preservados em restarts. Se você fizer `down -v`, perde tudo e a próxima subida volta para o estado original da imagem.
@@ -348,6 +375,12 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 
 spring.elasticsearch.uris=http://localhost:9200
+
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.operationsSorter=method
+springdoc.swagger-ui.tagsSorter=alpha
+springdoc.swagger-ui.tryItOutEnabled=true
 ```
 
 > **Atenção:** as credenciais default estão no arquivo apenas para facilitar o desenvolvimento local. Para qualquer ambiente que não seja a sua máquina, externalize via variáveis de ambiente / `application-{profile}.properties`.

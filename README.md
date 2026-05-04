@@ -220,7 +220,7 @@ docker run -d --name api-guilda-postgres `
 
 > A senha `jpguild` casa com o `spring.datasource.password` em `application.properties`. Se você usar outra senha aqui, ajuste o `application.properties` (ou exporte via env var) também.
 
-### 2. Subir o Elasticsearch
+### 2. Subir o Elasticsearch (imagem do TP)
 
 ```powershell
 docker pull leogloriainfnet/elastic-tp2-spring:1.0-alternativo
@@ -229,10 +229,24 @@ docker run -d --name api-guilda-elastic `
   -e discovery.type=single-node `
   -e xpack.security.enabled=false `
   -p 9200:9200 `
-  docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+  leogloriainfnet/elastic-tp2-spring:1.0-alternativo
 ```
 
-O índice `guilda_loja` é declarado com `createIndex = false` em `ProdutoLoja.java` — ele deve ser criado e populado externamente conforme o mapeamento (campos: `nome` text+keyword, `categoria` keyword, `descricao` text, `preco` float, `raridade` keyword).
+O índice `guilda_loja` é declarado com `createIndex = false` em `ProdutoLoja.java`. A imagem do TP já vem com o índice e os documentos populados — não precisa criar/popular manualmente.
+
+### 2b. Alternativa: subir tudo via docker-compose
+
+Existe um `docker-compose.yml` pronto em `src/main/docker/` que sobe Postgres + Elasticsearch com volumes persistentes e healthchecks:
+
+```powershell
+docker compose -f src/docker/docker-compose.yml up -d              # sobe tudo
+docker compose -f src/docker/docker-compose.yml ps                 # status / health
+docker compose -f src/docker/docker-compose.yml logs -f postgres   # logs de um servico
+docker compose -f src/docker/docker-compose.yml down               # para tudo (mantem volumes)
+docker compose -f src/docker/docker-compose.yml down -v            # para e APAGA os volumes
+```
+
+> **Atenção sobre os volumes:** na primeira subida, o Docker copia os dados da imagem (já populados pelo TP) para dentro do volume nomeado, então o conteúdo do Elastic e o seed do Postgres são preservados em restarts. Se você fizer `down -v`, perde tudo e a próxima subida volta para o estado original da imagem.
 
 ### 3. Preparar o banco
 

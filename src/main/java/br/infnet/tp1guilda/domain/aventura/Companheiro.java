@@ -15,14 +15,14 @@ import lombok.ToString;
 @Embeddable
 public class Companheiro {
 
-    @Column(name = "companheiro_nome", nullable = false, length = 120)
+    @Column(name = "companheiro_nome", length = 120)
     private String nome;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "companheiro_especie", nullable = false, length = 30)
+    @Column(name = "companheiro_especie", length = 30)
     private Especie especie;
 
-    @Column(name = "companheiro_lealdade", nullable = false)
+    @Column(name = "companheiro_lealdade")
     private Integer lealdade;
 
     public Companheiro(String nome, Especie especie, Integer lealdade) {

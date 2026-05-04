@@ -1,0 +1,449 @@
+{
+  "info": {
+    "name": "API-Guilda",
+    "description": "Coleção completa dos endpoints da API-Guilda (TP2 Spring).\n\nUse a variável `{{baseUrl}}` (default: http://localhost:8080) para alternar entre ambientes.\n\nIDs de exemplo (1001, etc) batem com o seed.sql do projeto.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "aventureiroId",
+      "value": "1001",
+      "type": "string"
+    },
+    {
+      "key": "missaoId",
+      "value": "1001",
+      "type": "string"
+    },
+    {
+      "key": "organizacaoId",
+      "value": "1001",
+      "type": "string"
+    },
+    {
+      "key": "usuarioId",
+      "value": "1001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Aventureiros",
+      "item": [
+        {
+          "name": "Registrar aventureiro",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizacaoId\": {{organizacaoId}},\n  \"usuarioId\": {{usuarioId}},\n  \"nome\": \"Novo Aventureiro\",\n  \"classe\": \"GUERREIRO\",\n  \"nivel\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros"]
+            },
+            "description": "Classes válidas: GUERREIRO, MAGO, ARQUEIRO, CLERIGO, LADINO. nivel >= 1."
+          }
+        },
+        {
+          "name": "Listar aventureiros (com filtros)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros?classe=GUERREIRO&ativo=true&nivelMinimo=1&page=0&size=10&sort=nome&direction=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros"],
+              "query": [
+                { "key": "classe", "value": "GUERREIRO", "description": "GUERREIRO | MAGO | ARQUEIRO | CLERIGO | LADINO", "disabled": true },
+                { "key": "ativo", "value": "true", "disabled": true },
+                { "key": "nivelMinimo", "value": "1", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10", "description": "1..50" },
+                { "key": "sort", "value": "nome" },
+                { "key": "direction", "value": "asc" }
+              ]
+            },
+            "description": "Resposta inclui headers X-Total-Count, X-Page, X-Size, X-Total-Pages."
+          }
+        },
+        {
+          "name": "Buscar por nome",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/busca?nome=Thaelin&page=0&size=10&sort=nome&direction=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "busca"],
+              "query": [
+                { "key": "nome", "value": "Thaelin" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sort", "value": "nome" },
+                { "key": "direction", "value": "asc" }
+              ]
+            },
+            "description": "Busca LIKE case-insensitive (fuzzy via Postgres)."
+          }
+        },
+        {
+          "name": "Buscar por id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}"]
+            }
+          }
+        },
+        {
+          "name": "Buscar visão completa",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}/completo",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}", "completo"]
+            },
+            "description": "Inclui totais e última missão."
+          }
+        },
+        {
+          "name": "Atualizar aventureiro (parcial)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Nome Atualizado\",\n  \"classe\": \"MAGO\",\n  \"nivel\": 12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}"]
+            },
+            "description": "Todos os campos do body são opcionais."
+          }
+        },
+        {
+          "name": "Encerrar vínculo",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}/encerrar-vinculo",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}", "encerrar-vinculo"]
+            },
+            "description": "Inativa o aventureiro (ativo=false)."
+          }
+        },
+        {
+          "name": "Recrutar novamente",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}/recrutar",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}", "recrutar"]
+            },
+            "description": "Reativa o aventureiro (ativo=true)."
+          }
+        },
+        {
+          "name": "Definir companheiro",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Faisca\",\n  \"especie\": \"DRAGAO_MINIATURA\",\n  \"lealdade\": 90\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}/companheiro",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}", "companheiro"]
+            },
+            "description": "Espécies: LOBO, CORUJA, GOLEM, DRAGAO_MINIATURA. Lealdade: 0..100."
+          }
+        },
+        {
+          "name": "Remover companheiro",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/aventureiros/{{aventureiroId}}/remover-companheiro",
+              "host": ["{{baseUrl}}"],
+              "path": ["aventureiros", "{{aventureiroId}}", "remover-companheiro"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missões",
+      "item": [
+        {
+          "name": "Listar missões (com filtros)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/missoes?status=EM_ANDAMENTO&nivelPerigo=ALTO&dataInicio=2026-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&page=0&size=10&sort=createdAt&direction=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["missoes"],
+              "query": [
+                { "key": "status", "value": "EM_ANDAMENTO", "description": "PLANEJADA | EM_ANDAMENTO | CONCLUIDA | CANCELADA", "disabled": true },
+                { "key": "nivelPerigo", "value": "ALTO", "description": "BAIXO | MEDIO | ALTO | EXTREMO", "disabled": true },
+                { "key": "dataInicio", "value": "2026-01-01T00:00:00Z", "description": "ISO-8601 (OffsetDateTime)", "disabled": true },
+                { "key": "dataFim", "value": "2026-12-31T23:59:59Z", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sort", "value": "createdAt" },
+                { "key": "direction", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Top 15 missões dos últimos 15 dias",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/missoes/top15dias",
+              "host": ["{{baseUrl}}"],
+              "path": ["missoes", "top15dias"]
+            },
+            "description": "Lê da materialized view `operacoes.vw_painel_tatico_missao`. Cacheado por 24h via Caffeine."
+          }
+        },
+        {
+          "name": "Buscar missão por id (detalhada)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/missoes/{{missaoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["missoes", "{{missaoId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Relatórios",
+      "item": [
+        {
+          "name": "Ranking de aventureiros",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/relatorios/ranking?dataInicio=2026-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&statusMissao=CONCLUIDA",
+              "host": ["{{baseUrl}}"],
+              "path": ["relatorios", "ranking"],
+              "query": [
+                { "key": "dataInicio", "value": "2026-01-01T00:00:00Z", "disabled": true },
+                { "key": "dataFim", "value": "2026-12-31T23:59:59Z", "disabled": true },
+                { "key": "statusMissao", "value": "CONCLUIDA", "description": "PLANEJADA | EM_ANDAMENTO | CONCLUIDA | CANCELADA", "disabled": true }
+              ]
+            },
+            "description": "Todos os filtros são opcionais."
+          }
+        },
+        {
+          "name": "Relatório agregado de missões",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/relatorios/missoes?dataInicio=2026-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["relatorios", "missoes"],
+              "query": [
+                { "key": "dataInicio", "value": "2026-01-01T00:00:00Z", "disabled": true },
+                { "key": "dataFim", "value": "2026-12-31T23:59:59Z", "disabled": true }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Produtos (Elasticsearch)",
+      "item": [
+        {
+          "name": "Busca",
+          "item": [
+            {
+              "name": "Por nome (match)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/nome?termo=espada",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "nome"],
+                  "query": [{ "key": "termo", "value": "espada" }]
+                }
+              }
+            },
+            {
+              "name": "Por descrição (match)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/descricao?termo=poção",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "descricao"],
+                  "query": [{ "key": "termo", "value": "poção" }]
+                }
+              }
+            },
+            {
+              "name": "Por frase exata (match phrase)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/frase?termo=cura instantanea",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "frase"],
+                  "query": [{ "key": "termo", "value": "cura instantanea" }]
+                }
+              }
+            },
+            {
+              "name": "Fuzzy (tolerância a typos)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/fuzzy?termo=espda",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "fuzzy"],
+                  "query": [{ "key": "termo", "value": "espda", "description": "typo proposital — fuzzy AUTO" }]
+                }
+              }
+            },
+            {
+              "name": "Multi-campos (nome + descrição)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/multicampos?termo=fogo",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "multicampos"],
+                  "query": [{ "key": "termo", "value": "fogo" }]
+                }
+              }
+            },
+            {
+              "name": "Com filtro (descrição + categoria)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/com-filtro?termo=cura&categoria=pocao",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "com-filtro"],
+                  "query": [
+                    { "key": "termo", "value": "cura" },
+                    { "key": "categoria", "value": "pocao" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Por faixa de preço (range)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/faixa-preco?min=100&max=500",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "faixa-preco"],
+                  "query": [
+                    { "key": "min", "value": "100" },
+                    { "key": "max", "value": "500" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Avançada (booleana combinada)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/busca/avancada?categoria=arma&raridade=epico&min=200&max=1000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "busca", "avancada"],
+                  "query": [
+                    { "key": "categoria", "value": "arma" },
+                    { "key": "raridade", "value": "epico" },
+                    { "key": "min", "value": "200" },
+                    { "key": "max", "value": "1000" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregações",
+          "item": [
+            {
+              "name": "Contagem por categoria",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/agregacoes/por-categoria",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "agregacoes", "por-categoria"]
+                }
+              }
+            },
+            {
+              "name": "Contagem por raridade",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/agregacoes/por-raridade",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "agregacoes", "por-raridade"]
+                }
+              }
+            },
+            {
+              "name": "Preço médio",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/agregacoes/preco-medio",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "agregacoes", "preco-medio"]
+                }
+              }
+            },
+            {
+              "name": "Faixas de preço",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/produtos/agregacoes/faixas-preco",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["produtos", "agregacoes", "faixas-preco"]
+                },
+                "description": "Faixas: <100, 100–300, 300–700, >700."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

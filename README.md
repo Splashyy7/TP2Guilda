@@ -11,6 +11,7 @@ API REST de gestão de uma **Guilda de Aventureiros** — controle de aventureir
 - [Arquitetura & Estrutura do Projeto](#arquitetura--estrutura-do-projeto)
 - [Modelo de Dados](#modelo-de-dados)
 - [Endpoints](#endpoints)
+- [Coleção Postman](#coleção-postman)
 - [Como Rodar](#como-rodar)
 - [Configuração](#configuração)
 - [Testes](#testes)
@@ -193,6 +194,24 @@ src/main/java/br/infnet/tp1guilda
 | `HttpMessageNotReadableException`  | 400 Bad Request       |
 | `ElasticsearchComunicacaoException`| 503 Service Unavailable |
 | `Exception` (genérico)             | 500 Internal Server Error |
+
+---
+
+## Coleção Postman
+
+Há uma coleção pronta para importar em `postman/`:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `postman/API-Guilda.postman_collection.json` | Collection v2.1 com todos os endpoints organizados em pastas (Aventureiros, Missões, Relatórios, Produtos/Busca, Produtos/Agregações). |
+| `postman/API-Guilda.postman_environment.json` | Environment "API-Guilda - Local" com `baseUrl=http://localhost:8080` e IDs de exemplo (`aventureiroId=1001`, `missaoId=1001`, etc.) alinhados com o `seed.sql`. |
+
+**Como importar:**
+
+1. No Postman: `File → Import` → arraste os dois arquivos.
+2. Selecione o environment `API-Guilda - Local` no dropdown do canto superior direito.
+
+Os requests de POST/PATCH/PUT já vêm com **bodies de exemplo válidos** (respeitando as validações dos DTOs — enums, ranges, etc.), e os filtros opcionais aparecem como query params **desabilitados** (basta marcar para ativar).
 
 ---
 
